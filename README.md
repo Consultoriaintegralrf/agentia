@@ -2,137 +2,136 @@
 
 # 🤖 Agentia
 
-#### Un proyecto de RF Consultoria Integral
-
-### Tu chatbot de IA para WhatsApp, Instagram y Telegram — en **tu propia nube**, sin mensualidades de SaaS.
-
-**Atiende a tus clientes 24/7, responde desde tu base de conocimiento, y te avisa a ti cuando algo lo amerita.** Vive en tu cuenta de Cloudflare, con tu llave de IA. Tus datos son tuyos.
-
-<em>Self-hosted AI support bot for small businesses. Lives in **your** Cloudflare, uses **your** AI key. Spanish-first. Deploy in minutes.</em>
+**Metodología y plataforma de RF Consultoria Integral para desplegar agentes de IA de atención al cliente — en la nube del propio negocio, no en la nuestra.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b.svg)](./LICENSE)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f6821f.svg)](https://workers.cloudflare.com/)
-[![Hecho por RF Consultoria Integral](https://img.shields.io/badge/hecho%20por-RF%20Consultoria%20Integral-1a1206.svg)](https://github.com/Consultoriaintegralrf)
+[![RF Consultoria Integral](https://img.shields.io/badge/RF%20Consultoria%20Integral-agentes%20de%20IA-1a1206.svg)](https://github.com/Consultoriaintegralrf)
 
-[**Instalar**](#-instalar-en-5-minutos) · [**Cómo funciona**](#-cómo-funciona) · [**Privacidad**](#-privacidad--quién-ve-los-datos)
+[**Arquitectura**](#arquitectura) · [**Seguridad**](#seguridad-primero-no-como-anexo) · [**Instalación**](#instalación) · [**Privacidad**](#privacidad)
 
 </div>
 
 ---
 
-## ¿Qué es Agentia?
+## El problema que resolvemos
 
-Un asistente de soporte con IA que montas **en tu propia infraestructura de Cloudflare** en una tarde. En lugar de pagar una mensualidad a un SaaS que se queda con tus conversaciones, Agentia vive en tu cuenta, con tu llave de IA, y **todo es tuyo**.
+Un negocio que atiende por WhatsApp, Instagram y Telegram termina con tres chats abiertos, un empleado copiando y pegando las mismas respuestas, y cero visibilidad de qué preguntan realmente los clientes. Las alternativas de mercado son SaaS: tus conversaciones — y las de tus clientes — viven en el servidor de un tercero, con una mensualidad fija sin importar cuánto uses el bot.
 
-- 💬 **Multicanal** — WhatsApp, Instagram, Messenger y Telegram desde un mismo cerebro.
-- 📚 **Aprende de tus documentos** — subes tus FAQ, políticas y guías; el bot busca ahí antes de responder (RAG con base vectorial).
-- 🎙️ **Entiende notas de voz** — transcribe los audios de tus clientes automáticamente.
-- 🙋 **Sabe cuándo pedir ayuda** — si algo es delicado o no está seguro, te hace *handoff* a ti.
-- 📊 **Panel de administración** — conversaciones, leads, base de conocimiento y métricas, todo en `/admin`.
-- ☁️ **Vive en tu Cloudflare** — rápido, barato y sin servidores que mantener.
-- 🧠 **Tu cerebro, tu llave** — Claude, ChatGPT o Grok; tú eliges y pagas solo lo que piensa.
-- 🔒 **Endurecido** — webhooks firmados por canal, rate limiting y freno automático de presupuesto de IA.
+**Agentia** es nuestra respuesta a eso: un agente de IA que se despliega **dentro de la infraestructura del propio negocio** (Cloudflare), con **su propia llave de modelo de IA**, y que nosotros configuramos, endurecemos y dejamos operando. El negocio es dueño de sus datos desde el día uno — nosotros somos quienes lo montamos, no quienes se los quedan.
 
-> Agentia se instala y configura con [Claude Code](https://claude.com/claude-code) como copiloto — te guía paso a paso y corre los comandos por ti.
+## Qué hace
 
----
+| | |
+|---|---|
+| 💬 **Multicanal real** | WhatsApp, Instagram, Messenger y Telegram atendidos por el mismo cerebro, con el mismo historial por cliente. |
+| 📚 **Contexto propio (RAG)** | Responde desde los documentos del negocio (FAQ, catálogo, políticas) indexados en una base vectorial, no desde lo que el modelo "cree" saber. |
+| 🎙️ **Voz e imagen** | Transcribe notas de voz y analiza imágenes de producto antes de responder. |
+| 🙋 **Escalamiento con criterio** | Si detecta algo delicado o fuera de su alcance, hace *handoff* a una persona en vez de improvisar. |
+| 📊 **Panel operativo** | Conversaciones, leads, base de conocimiento, costos de IA y métricas — todo en `/admin`, sin planilla aparte. |
+| 🧠 **Modelo intercambiable** | Anthropic, OpenAI o xAI — se paga la llave propia del negocio, no una capa de margen nuestra sobre el consumo. |
 
-## 🚀 Instalar en 5 minutos
+## Seguridad primero, no como anexo
+
+Cuando adaptamos esta plataforma para nuestros clientes, la primera pasada no fue de marca — fue una auditoría de seguridad. Lo que trae Agentia de fábrica que una plantilla genérica normalmente no trae:
+
+- **Cada canal verifica su propio origen.** Telegram, WhatsApp/Twilio y ManyChat validan firma o secreto compartido en cada webhook antes de procesar un solo mensaje — nada entra sin probar que viene de donde dice venir.
+- **Rate limiting por IP** en los webhooks y en los endpoints administrativos, para que una ráfaga de tráfico no se traduzca en factura de IA.
+- **Freno automático de presupuesto**: si el gasto mensual de IA se dispara, el bot se pausa solo y avisa al dueño — no sigue gastando en silencio hasta el corte de tarjeta.
+- **Cero telemetría hacia nosotros.** No hay ping de activación, no hay analítica oculta enviándonos datos del negocio del cliente. Es auditable línea por línea en `src/`.
+
+## Instalación
 
 ```bash
 git clone https://github.com/Consultoriaintegralrf/agentia mi-chatbot
 cd mi-chatbot
 pnpm install
-# Configura wrangler.toml (nombre de tu worker) y tus secretos
+
+# Aprovisiona tu infraestructura en Cloudflare
 npx wrangler d1 create agentia_bot_db          # → pega el database_id en wrangler.toml
 npx wrangler vectorize create agentia_bot_kb --dimensions=1024 --metric=cosine
 npx wrangler r2 bucket create agentia-bot-catalog
-npx wrangler secret put ANTHROPIC_API_KEY      # (o OPENAI/XAI)
+
+# Secretos (nunca en el código, siempre vía wrangler)
+npx wrangler secret put ANTHROPIC_API_KEY      # o OPENAI_API_KEY / XAI_API_KEY
 npx wrangler secret put DASHBOARD_PASSWORD
 npx wrangler secret put KB_REINDEX_TOKEN
+
 pnpm db:apply:remote
 pnpm run deploy
 ```
 
-Tu panel queda en `https://<tu-worker>.workers.dev/admin`.
+El panel queda en `https://<tu-worker>.workers.dev/admin`.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Consultoriaintegralrf/agentia)
 
-Si vas a conectar Telegram, Twilio (WhatsApp) o ManyChat, revisa los secretos de firma de webhook (`TELEGRAM_WEBHOOK_SECRET`, `MANYCHAT_WEBHOOK_SECRET`) comentados en `wrangler.toml` — sin ellos, esos canales rechazan los mensajes entrantes por diseño (fail-closed).
+Si vas a conectar Telegram o ManyChat, configura también `TELEGRAM_WEBHOOK_SECRET` / `MANYCHAT_WEBHOOK_SECRET` (comentados en `wrangler.toml`) — por diseño, esos canales rechazan cualquier mensaje entrante hasta que el secreto está puesto.
 
----
+> ¿Prefieres que lo hagamos nosotros? Es literalmente a lo que nos dedicamos — escríbenos (abajo) y lo dejamos operando por ti.
 
-## 💸 Cuánto cuesta
-
-Lo único que pagas es tu propia infraestructura, y arranca casi en cero:
-
-| Pieza | Costo | Notas |
-|---|---|---|
-| **Cloudflare** (la casa del bot) | **$0** para empezar · ~$5/mes ya con tráfico real | D1, Vectorize y R2 tienen capa gratis generosa |
-| **Cerebro de IA** (tu llave) | ~**$1–2/mes** para un negocio normal | Pagas solo lo que el bot piensa; tu llave, cifrada en tu Cloudflare |
-
-Nadie más toca tus datos ni tus conversaciones.
-
----
-
-## 🧠 Cómo funciona
+## Arquitectura
 
 ```mermaid
-flowchart LR
-    C["Cliente<br/>(WhatsApp / IG / Telegram)"] -->|mensaje| W["Agentia<br/>Cloudflare Worker"]
-    W --> A["Agente (Durable Object)<br/>buffer + tools"]
-    A -->|busca contexto| V[("Vectorize<br/>base de conocimiento")]
-    A -->|piensa| LLM["Tu IA<br/>Claude / GPT / Grok"]
-    A -->|guarda| D[("D1<br/>conversaciones + leads")]
-    A -->|responde| C
-    A -.->|si algo lo amerita| O["Handoff al dueño"]
-    W --- P["Panel /admin<br/>conversaciones · leads · KB · métricas"]
+sequenceDiagram
+    participant Cliente as Cliente (WhatsApp/IG/Telegram)
+    participant Worker as Agentia (Cloudflare Worker)
+    participant Agente as Agente (Durable Object)
+    participant KB as Vectorize (base de conocimiento)
+    participant IA as Modelo de IA (llave propia)
+    participant Dueño as Dueño del negocio
+
+    Cliente->>Worker: mensaje
+    Worker->>Worker: verifica firma/secreto del canal
+    Worker->>Agente: enruta al agente del cliente
+    Agente->>KB: busca contexto relevante
+    Agente->>IA: redacta respuesta con la voz del negocio
+    Agente-->>Cliente: responde
+    Agente--)Dueño: si algo lo amerita, handoff
 ```
 
-Un mensaje entra por un canal → se valida que venga realmente de ese canal (firma/secreto por webhook) → el agente arma contexto desde tu base de conocimiento → tu IA redacta la respuesta con la voz de tu negocio → se responde y se guarda. Si algo es delicado, te avisa a ti.
+Todo corre sobre Durable Objects (un agente con estado por conversación), D1 (SQLite) para conversaciones y leads, Vectorize para la base de conocimiento y R2 para media — el paquete completo de Cloudflare, sin servidores propios que mantener ni pipeline de despliegue aparte del `pnpm run deploy`.
+
+## Stack
+
+| Capa | Tecnología |
+|---|---|
+| Runtime | Cloudflare Workers + [Hono](https://hono.dev/) |
+| Agente con estado | Durable Objects |
+| LLM | [Vercel AI SDK](https://sdk.vercel.ai/) — Anthropic / OpenAI / xAI |
+| Base de conocimiento | Vectorize (embeddings `bge-m3`) |
+| Datos operativos | D1 (SQLite) |
+| Media | R2 |
+
+## Costos
+
+No hay mensualidad de producto — se paga la infraestructura propia, que arranca casi en cero:
+
+| Concepto | Costo aproximado |
+|---|---|
+| Cloudflare (Workers, D1, Vectorize, R2) | $0 para empezar · ~$5/mes con tráfico real |
+| Modelo de IA (llave propia) | $1–2/mes para un negocio típico |
+
+## Privacidad
+
+Las conversaciones viven en la cuenta de Cloudflare del negocio, no en la nuestra ni en la de nadie más:
+
+- Los mensajes se autoborran a los **90 días**; leads y tickets se conservan hasta que el dueño los borra.
+- No se guardan audios ni imágenes — se transcriben/describen y solo queda el texto.
+- El texto de la conversación viaja únicamente al proveedor de IA elegido, con la llave del propio negocio.
+- El bot se identifica como bot si se le pregunta — no está configurado para negarlo.
+
+El dueño del negocio es el responsable de esos datos frente a sus clientes (avisar que la atención es automatizada, atender solicitudes de borrado, etc.). Detalle completo en [`PRIVACY.md`](./PRIVACY.md).
+
+## Sobre RF Consultoria Integral
+
+Somos una consultora que implementa infraestructura de IA para negocios — Agentia es la plataforma que usamos para dejar agentes de atención al cliente operando de forma segura, en la nube del propio cliente. [`CONTRIBUTING.md`](./CONTRIBUTING.md) explica cómo reportar un bug o proponer una mejora.
 
 ---
-
-## 🧩 Stack
-
-- **[Cloudflare Workers](https://workers.cloudflare.com/)** (Hono) — el runtime del bot.
-- **[Vercel AI SDK](https://sdk.vercel.ai/)** — capa de LLM (Anthropic / OpenAI / xAI, con llave propia).
-- **D1** (SQLite) — conversaciones, leads, configuración, rate limiting.
-- **Vectorize** (bge-m3) — base de conocimiento / RAG.
-- **R2** — media (imágenes, audios).
-- **Durable Objects** — el agente que piensa y responde (buffer + tools).
-
-Todo en el ecosistema de Cloudflare: un solo `pnpm run deploy` y está en línea.
-
----
-
-## 🔒 Privacidad — quién ve los datos
-
-**Nadie más que tú.** Agentia corre en TU cuenta de Cloudflare con TUS llaves: las conversaciones de tus clientes viven en tu base de datos y **el bot no envía telemetría ni datos de uso a nadie**. No hay ping de activación ni analíticas ocultas — puedes revisarlo tú mismo en `src/`.
-
-- Los **mensajes se borran solos a los 90 días** (cron diario). Los leads y tickets se quedan hasta que tú los borres.
-- **No se guardan audios ni imágenes**: se transcriben o describen y solo queda el texto.
-- Los links del bot cuentan clics, **sin IP ni navegador**.
-- El texto de la conversación sí viaja al **proveedor de IA que tú elegiste** (con tu llave) para poder responder.
-- Si preguntan si es un bot, **el bot lo admite**. No lo configures para negarlo.
-
-Como dueño del negocio, **tú eres el responsable** de esos datos: avisa a tus clientes que la atención es automatizada y que guardas la conversación, y atiende las solicitudes de borrado. Todo el detalle está en [`PRIVACY.md`](./PRIVACY.md).
-
----
-
-## 🤝 Contribuir
-
-Lee [`CONTRIBUTING.md`](./CONTRIBUTING.md) para el flujo, y abre un issue si tienes una idea o encuentras un bug.
-
-## 📄 Licencia
-
-[MIT](./LICENSE).
 
 <div align="center">
 
----
+**RF Consultoria Integral** · [GitHub](https://github.com/Consultoriaintegralrf) · [consultoriarf83@gmail.com](mailto:consultoriarf83@gmail.com)
 
-**Hecho con 🤖 por [RF Consultoria Integral](https://github.com/Consultoriaintegralrf)** · ¿Dudas o quieres que te lo instalemos? [consultoriarf83@gmail.com](mailto:consultoriarf83@gmail.com)
+[MIT](./LICENSE)
 
 </div>
-
