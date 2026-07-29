@@ -130,7 +130,7 @@ Somos una consultora que implementa infraestructura de IA para negocios — Agen
 
 <div align="center">
 
-**RF Consultoria Integral** · [GitHub](https://github.com/Consultoriaintegralrf) · [consultoriarf83@gmail.com](mailto:consultoriarf83@gmail.com)
+**RF Consultoria Integral** · [rfconsultoriaintegral.com.mx](https://rfconsultoriaintegral.com.mx) · [GitHub](https://github.com/Consultoriaintegralrf)
 
 [MIT](./LICENSE)
 
