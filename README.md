@@ -71,6 +71,8 @@ Si vas a conectar Telegram o ManyChat, configura también `TELEGRAM_WEBHOOK_SECR
 
 ## Arquitectura
 
+### Por conversación
+
 ```mermaid
 sequenceDiagram
     participant Cliente as Cliente (WhatsApp/IG/Telegram)
@@ -86,10 +88,44 @@ sequenceDiagram
     Agente->>KB: busca contexto relevante
     Agente->>IA: redacta respuesta con la voz del negocio
     Agente-->>Cliente: responde
-    Agente--)Dueño: si algo lo amerita, handoff
+
+    opt algo delicado o fuera de alcance
+        Agente--)Dueño: escala (handoff)
+    end
 ```
 
 Todo corre sobre Durable Objects (un agente con estado por conversación), D1 (SQLite) para conversaciones y leads, Vectorize para la base de conocimiento y R2 para media — el paquete completo de Cloudflare, sin servidores propios que mantener ni pipeline de despliegue aparte del `pnpm run deploy`.
+
+### Cómo escala: un despliegue aislado por negocio
+
+No hay un servidor compartido que se satura con más clientes. Cada negocio recibe su **propio** Worker, D1, Vectorize y R2 — la misma metodología, repetida, no una base de datos compartida creciendo sin control:
+
+```mermaid
+flowchart TB
+    subgraph RF["RF Consultoria Integral — misma metodología, un despliegue por cliente"]
+        direction LR
+        subgraph N1["Negocio A"]
+            direction TB
+            W1["Worker"]
+            W1 --- S1["D1 · Vectorize · R2"]
+        end
+        subgraph N2["Negocio B"]
+            direction TB
+            W2["Worker"]
+            W2 --- S2["D1 · Vectorize · R2"]
+        end
+        subgraph N3["Negocio C…"]
+            direction TB
+            W3["Worker"]
+            W3 --- S3["D1 · Vectorize · R2"]
+        end
+    end
+    Edge["Red global de Cloudflare (edge)"] --- N1
+    Edge --- N2
+    Edge --- N3
+```
+
+Sumar un cliente nuevo es repetir el despliegue, no rediseñar nada — y un incidente o pico de tráfico en un negocio nunca toca los datos ni el presupuesto de otro.
 
 ## Stack
 
