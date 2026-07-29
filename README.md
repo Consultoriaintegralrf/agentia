@@ -2,6 +2,8 @@
 
 # 🤖 Agentia
 
+#### Un proyecto de RF Consultoria Integral
+
 ### Tu chatbot de IA para WhatsApp, Instagram y Telegram — en **tu propia nube**, sin mensualidades de SaaS.
 
 **Atiende a tus clientes 24/7, responde desde tu base de conocimiento, y te avisa a ti cuando algo lo amerita.** Vive en tu cuenta de Cloudflare, con tu llave de IA. Tus datos son tuyos.
@@ -10,6 +12,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b.svg)](./LICENSE)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f6821f.svg)](https://workers.cloudflare.com/)
+[![Hecho por RF Consultoria Integral](https://img.shields.io/badge/hecho%20por-RF%20Consultoria%20Integral-1a1206.svg)](https://github.com/Consultoriaintegralrf)
 
 [**Instalar**](#-instalar-en-5-minutos) · [**Cómo funciona**](#-cómo-funciona) · [**Privacidad**](#-privacidad--quién-ve-los-datos)
 
@@ -124,4 +127,12 @@ Lee [`CONTRIBUTING.md`](./CONTRIBUTING.md) para el flujo, y abre un issue si tie
 ## 📄 Licencia
 
 [MIT](./LICENSE).
+
+<div align="center">
+
+---
+
+**Hecho con 🤖 por [RF Consultoria Integral](https://github.com/Consultoriaintegralrf)** · ¿Dudas o quieres que te lo instalemos? [consultoriarf83@gmail.com](mailto:consultoriarf83@gmail.com)
+
+</div>
 
